@@ -4,8 +4,13 @@ import (
 	"github.com/wisepythagoras/stowic/dom"
 )
 
-func divComponent() {
-	//
+var myComponent dom.Component = func(p dom.Props, e *dom.Element) (*dom.Element, any) {
+	return &dom.Element{
+		Component:   &dom.Div,
+		Props:       &dom.Props{},
+		Styles:      dom.Styles{"color": "blue"},
+		TextContent: "This is a custom component",
+	}, nil
 }
 
 func main() {
@@ -44,6 +49,9 @@ func main() {
 			Styles:    dom.Styles{"padding": "10px"},
 			Props: &dom.Props{
 				"children": []*dom.Element{
+					{
+						Component: &myComponent,
+					},
 					{
 						Component: &dom.Div,
 						Props: &dom.Props{

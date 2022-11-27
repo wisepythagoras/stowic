@@ -45,12 +45,15 @@ func (el *Element) Render(doc *js.Value, parent *js.Value) *js.Value {
 		props = *el.Props
 	}
 
-	_, other := (*el.Component)(props, el)
+	childElement, other := (*el.Component)(props, el)
 
 	elType := "block"
 
 	if len(el.nativeType) > 0 {
 		elType = string(el.nativeType)
+	} else if elType == "block" {
+		// Handles custom components.
+		return childElement.Render(doc, parent)
 	}
 
 	// If we encounter a text component, then we only need to append the text to the
