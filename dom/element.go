@@ -5,27 +5,36 @@ import (
 )
 
 type Element struct {
-	Component   Component
+	Component   *Component
 	Props       *Props
 	Children    []*Element
-	TextContent *Text
+	TextContent string
 	Styles      map[string]string
+	nativeType  NativeComponentType
 }
 
 // handleChildren will loop through the children and append them to the native element
 // that this element represents.
 func (el *Element) handleChildren(doc *js.Value, native *js.Value) {
 	for _, child := range el.Children {
-		if text, ok := child.Component.(*Text); ok {
-			native.Set("innerHTML", text.Contents)
-		} else {
-			native.Call("appendChild", *child.Render(doc))
+		res := child.Render(doc, native)
+
+		if res != nil {
+			native.Call("appendChild", *res)
 		}
 	}
 }
 
+func (el *Element) setNativeType(nativeType NativeComponentType) {
+	el.nativeType = nativeType
+}
+
+func (el *Element) GetNativeType() NativeComponentType {
+	return el.nativeType
+}
+
 // Render should handle the rendering of the element held by this instance.
-func (el *Element) Render(doc *js.Value) *js.Value {
+func (el *Element) Render(doc *js.Value, parent *js.Value) *js.Value {
 	if el.Component == nil {
 		return nil
 	}
@@ -36,18 +45,31 @@ func (el *Element) Render(doc *js.Value) *js.Value {
 		props = *el.Props
 	}
 
-	el.Component.Render(props)
+	_, other := (*el.Component)(props, el)
 
 	elType := "block"
 
-	if nativeType, ok := el.Component.(NativeComponent); ok {
-		elType = string(nativeType.Type())
+	if len(el.nativeType) > 0 {
+		elType = string(el.nativeType)
+	}
+
+	// If we encounter a text component, then we only need to append the text to the
+	// parent component.
+	if el.nativeType == TEXT && parent != nil {
+		parent.Set("innerHTML", other.(string))
+		return nil
 	}
 
 	native := doc.Call("createElement", elType)
 
-	if el.Props != nil {
+	if len(el.TextContent) > 0 {
+		// The text content takes precedence over everything else.
+		native.Set("innerHTML", el.TextContent)
+	} else if el.Props != nil {
 		if children, hasChildren := (*el.Props)["children"]; hasChildren {
+			// If the children are an array of elements, then we need to go through all
+			// of the children and handle them separately. Otherwise, if it's of string
+			// type, simply append that to the innerHTML.
 			if elChildren, ok := children.([]*Element); ok {
 				el.Children = elChildren
 				el.handleChildren(doc, &native)
@@ -57,8 +79,6 @@ func (el *Element) Render(doc *js.Value) *js.Value {
 		} else if el.Children != nil && len(el.Children) > 0 {
 			el.handleChildren(doc, &native)
 		}
-	} else if el.TextContent != nil {
-		native.Set("innerHTML", el.TextContent.Contents)
 	}
 
 	if el.Styles != nil {

@@ -1,9 +1,10 @@
 package dom
 
-type Text struct {
-	Contents string
-}
+func CreateTextComponent(text string) *Component {
+	var textComponent Component = func(props Props, el *Element) (*Element, any) {
+		el.setNativeType(TEXT)
+		return nil, text
+	}
 
-func (t *Text) Render(props Props) *Element {
-	return nil
+	return &textComponent
 }

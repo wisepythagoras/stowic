@@ -12,47 +12,44 @@ func main() {
 	divProps := make(dom.Props)
 	divProps["children"] = []*dom.Element{
 		{
-			Component: &dom.Text{
-				Contents: "Hello, world!",
-			},
+			Component: dom.CreateTextComponent("Hello, world!"),
 		},
 	}
 
 	rootProps := make(dom.Props)
 	rootProps["children"] = []*dom.Element{
 		{
-			Component: &dom.Div{},
+			Component: &dom.Div,
 			Props:     &divProps,
 		},
 		{
-			Component: &dom.Span{},
+			Component: &dom.Span,
 			// Props: &dom.Props{
 			// 	"children": "This is a span",
 			// },
-			TextContent: &dom.Text{
-				Contents: "This is a span!!!",
-			},
-			Styles: map[string]string{
+			TextContent: "This is a span!!!",
+			Styles: dom.Styles{
 				"fontSize": "21px",
 				"color":    "red",
 			},
 		},
 		{
-			Component: &dom.H1{},
+			Component: &dom.H1,
 			Props: &dom.Props{
 				"children": "This is a header",
 			},
 		},
 		{
-			Component: &dom.Div{},
+			Component: &dom.Div,
+			Styles:    dom.Styles{"padding": "10px"},
 			Props: &dom.Props{
 				"children": []*dom.Element{
 					{
-						Component: &dom.Div{},
+						Component: &dom.Div,
 						Props: &dom.Props{
 							"children": []*dom.Element{
 								{
-									Component: &dom.Div{},
+									Component: &dom.Div,
 									Props: &dom.Props{
 										"children": "Nesting test",
 									},
@@ -66,7 +63,7 @@ func main() {
 	}
 
 	element := dom.Element{
-		Component: &dom.Div{},
+		Component: &dom.Div,
 		Props:     &rootProps,
 	}
 

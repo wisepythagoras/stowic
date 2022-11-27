@@ -6,51 +6,26 @@ const (
 	DIV      NativeComponentType = "div"
 	SPAN     NativeComponentType = "span"
 	HEADING1 NativeComponentType = "h1"
+	TEXT     NativeComponentType = "text"
 )
-
-type NativeComponent interface {
-	Render(props Props) *Element
-	Type() NativeComponentType
-}
 
 // Native div element.
 
-type Div struct {
-}
-
-func (d *Div) Render(props Props) *Element {
-	println("The div's render function was called")
-	return nil
-}
-
-func (d *Div) Type() NativeComponentType {
-	return DIV
+var Div Component = func(props Props, el *Element) (*Element, any) {
+	el.setNativeType(DIV)
+	return nil, nil
 }
 
 // Native span element.
 
-type Span struct {
-}
-
-func (s *Span) Render(props Props) *Element {
-	println("The span's render function was called")
-	return nil
-}
-
-func (s *Span) Type() NativeComponentType {
-	return SPAN
+var Span Component = func(props Props, el *Element) (*Element, any) {
+	el.setNativeType(SPAN)
+	return nil, nil
 }
 
 // Native h1 element.
 
-type H1 struct {
-}
-
-func (h *H1) Render(props Props) *Element {
-	println("The h1's render function was called")
-	return nil
-}
-
-func (h *H1) Type() NativeComponentType {
-	return HEADING1
+var H1 Component = func(props Props, el *Element) (*Element, any) {
+	el.setNativeType(HEADING1)
+	return nil, nil
 }

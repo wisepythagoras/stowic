@@ -9,7 +9,7 @@ import (
 
 func Render(el *Element, id string) {
 	doc := js.Global().Get("document")
-	tree := el.Render(&doc)
+	tree := el.Render(&doc, nil)
 
 	target := doc.Call("getElementById", id)
 	target.Set("innerHTML", "")
