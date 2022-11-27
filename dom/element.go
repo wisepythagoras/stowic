@@ -5,12 +5,13 @@ import (
 )
 
 type Element struct {
-	Component   *Component
-	Props       *Props
-	Children    []*Element
-	TextContent string
-	Styles      map[string]string
-	nativeType  NativeComponentType
+	Component     *Component
+	Props         *Props
+	Children      []*Element
+	TextContent   string
+	Styles        map[string]string
+	EventHandlers NativeEventHandlerMap
+	nativeType    NativeComponentType
 }
 
 // handleChildren will loop through the children and append them to the native element
@@ -65,10 +66,21 @@ func (el *Element) Render(doc *js.Value, parent *js.Value) *js.Value {
 
 	native := doc.Call("createElement", elType)
 
+	if el.EventHandlers != nil {
+		for eventType, handler := range el.EventHandlers {
+			native.Call("addEventListener", string(eventType), js.FuncOf(*handler))
+		}
+	}
+
+	hasAddedText := false
+
 	if len(el.TextContent) > 0 {
 		// The text content takes precedence over everything else.
 		native.Set("innerHTML", el.TextContent)
-	} else if el.Props != nil {
+		hasAddedText = true
+	}
+
+	if el.Props != nil {
 		if children, hasChildren := (*el.Props)["children"]; hasChildren {
 			// If the children are an array of elements, then we need to go through all
 			// of the children and handle them separately. Otherwise, if it's of string
@@ -76,7 +88,7 @@ func (el *Element) Render(doc *js.Value, parent *js.Value) *js.Value {
 			if elChildren, ok := children.([]*Element); ok {
 				el.Children = elChildren
 				el.handleChildren(doc, &native)
-			} else if strChild, ok := children.(string); ok {
+			} else if strChild, ok := children.(string); ok && !hasAddedText {
 				native.Set("innerHTML", strChild)
 			}
 		} else if el.Children != nil && len(el.Children) > 0 {
