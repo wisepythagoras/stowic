@@ -131,6 +131,7 @@ func CreateTextElement(c *Component, s string, styles *Styles, eh *NativeEventHa
 		Component:     c,
 		TextContent:   s,
 		EventHandlers: eh,
+		Props:         &Props{},
 		Styles:        styles,
 	}
 }

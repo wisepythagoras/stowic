@@ -8,103 +8,59 @@ import (
 	"github.com/wisepythagoras/stowic/dom"
 )
 
+// myComponent Shows how to create and manage a custom component.
 var myComponent dom.Component = func(p dom.Props, e *dom.Element) (*dom.Element, any) {
 	var onButtonClick dom.NativeEventHandler = func(this js.Value, args []js.Value) any {
 		fmt.Println("Button clicked", time.Now().GoString())
 		return nil
 	}
 
-	return &dom.Element{
-		Component: &dom.P,
-		Props:     &dom.Props{},
-		Children: []*dom.Element{
-			{
-				Component:   &dom.Button,
-				TextContent: "Click me",
-				EventHandlers: &dom.NativeEventHandlerMap{
-					dom.ONCLICK: &onButtonClick,
-				},
-			},
-			{
-				Component:   &dom.Span,
-				TextContent: "This is another span",
-			},
-		},
-		Styles:      &dom.Styles{"color": "blue"},
-		TextContent: "This is a custom component",
-	}, nil
+	return dom.CreateElement(
+		&dom.Div, &dom.Styles{"color": "blue", "border": "1px solid blue"}, nil, &p,
+		dom.CreateTextElement(&dom.P, "This is a custom component", nil, nil),
+		dom.CreateTextElement(&dom.Button, "Click me", nil, &dom.NativeEventHandlerMap{
+			dom.ONCLICK: &onButtonClick,
+		}),
+		dom.CreateTextElement(&dom.Span, "This is another span", nil, nil),
+	), nil
 }
 
 func main() {
 	lock := make(chan int, 1)
 	divProps := make(dom.Props)
-	divProps["children"] = []*dom.Element{
-		{
-			Component: dom.CreateTextComponent("Hello, world!"),
-		},
-	}
+	divProps["test"] = 123
 
 	rootProps := make(dom.Props)
 	rootProps["children"] = []*dom.Element{
-		{
-			Component: &dom.Div,
-			Props:     &divProps,
-		},
-		{
-			Component: &dom.Span,
-			// Props: &dom.Props{
-			// 	"children": "This is a span",
-			// },
-			TextContent: "This is a span!!!",
-			Styles: &dom.Styles{
-				"fontSize": "21px",
-				"color":    "red",
-			},
-		},
+		dom.CreateElement(&dom.Div, nil, nil, &divProps, dom.CreateTextElement(&dom.Span, "Hello, world!", nil, nil)),
+		dom.CreateTextElement(&dom.Span, "This is a span!!!", &dom.Styles{
+			"fontSize": "21px",
+			"color":    "red",
+		}, nil),
 		dom.CreateTextElement(&dom.Span, "This is a span!!!", &dom.Styles{
 			"fontSize":   "22px",
 			"color":      "blue",
 			"fontWeight": "bold",
 		}, nil),
-		{
-			Component: &dom.H1,
-			Props: &dom.Props{
-				"children": "This is a header",
-			},
-		},
-		{
-			Component: &dom.Div,
-			Styles:    &dom.Styles{"padding": "10px"},
-			Props: &dom.Props{
-				"children": []*dom.Element{
-					dom.CreateElement(&myComponent, nil, nil, &dom.Props{"test": 123}),
-					dom.CreateElement(
-						&dom.Div, nil, nil, &dom.Props{},
-						dom.CreateTextElement(&dom.Div, "This is a test", nil, nil),
-					),
-					{
-						Component: &dom.Div,
-						Props: &dom.Props{
-							"children": []*dom.Element{
-								{
-									Component: &dom.Div,
-									Props: &dom.Props{
-										"children": "Nesting test",
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+		dom.CreateTextElement(&dom.H1, "This is a header", nil, nil),
+		dom.CreateElement(
+			&dom.Div, &dom.Styles{"padding": "10px"}, nil, &dom.Props{},
+			dom.CreateElement(&myComponent, nil, nil, &dom.Props{"test": 123}),
+			dom.CreateElement(
+				&dom.Div, nil, nil, &dom.Props{},
+				dom.CreateTextElement(&dom.Div, "This is a test", nil, nil),
+			),
+			dom.CreateElement(
+				&dom.Div, nil, nil, &dom.Props{},
+				dom.CreateTextElement(
+					&dom.Div, "Nesting test", nil, nil,
+				),
+			),
+		),
 	}
 
-	element := dom.Element{
-		Component: &dom.Div,
-		Props:     &rootProps,
-	}
+	// This is the equivalent to the initial render of a React app.
+	dom.Render(dom.CreateElement(&dom.Div, nil, nil, &rootProps), "hello")
 
-	dom.Render(&element, "hello")
 	<-lock
 }
