@@ -12,6 +12,7 @@ type Styles map[string]string
 
 type NativeEventHandlerType string
 
+// Documentation on these: https://developer.mozilla.org/en-US/docs/Web/API/Element
 const (
 	ONCLICK      NativeEventHandlerType = "click"
 	ONBLUR       NativeEventHandlerType = "blur"
