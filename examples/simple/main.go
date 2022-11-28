@@ -21,7 +21,7 @@ var myComponent dom.Component = func(p dom.Props, e *dom.Element) (*dom.Element,
 			{
 				Component:   &dom.Button,
 				TextContent: "Click me",
-				EventHandlers: dom.NativeEventHandlerMap{
+				EventHandlers: &dom.NativeEventHandlerMap{
 					dom.ONCLICK: &onButtonClick,
 				},
 			},
@@ -30,7 +30,7 @@ var myComponent dom.Component = func(p dom.Props, e *dom.Element) (*dom.Element,
 				TextContent: "This is another span",
 			},
 		},
-		Styles:      dom.Styles{"color": "blue"},
+		Styles:      &dom.Styles{"color": "blue"},
 		TextContent: "This is a custom component",
 	}, nil
 }
@@ -56,11 +56,16 @@ func main() {
 			// 	"children": "This is a span",
 			// },
 			TextContent: "This is a span!!!",
-			Styles: dom.Styles{
+			Styles: &dom.Styles{
 				"fontSize": "21px",
 				"color":    "red",
 			},
 		},
+		dom.CreateTextElement(&dom.Span, "This is a span!!!", &dom.Styles{
+			"fontSize":   "22px",
+			"color":      "blue",
+			"fontWeight": "bold",
+		}, nil),
 		{
 			Component: &dom.H1,
 			Props: &dom.Props{
@@ -69,12 +74,16 @@ func main() {
 		},
 		{
 			Component: &dom.Div,
-			Styles:    dom.Styles{"padding": "10px"},
+			Styles:    &dom.Styles{"padding": "10px"},
 			Props: &dom.Props{
 				"children": []*dom.Element{
 					{
 						Component: &myComponent,
 					},
+					dom.CreateElement(
+						&dom.Div, nil, nil, &dom.Props{},
+						dom.CreateTextElement(&dom.Div, "This is a test", nil, nil),
+					),
 					{
 						Component: &dom.Div,
 						Props: &dom.Props{

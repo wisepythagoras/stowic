@@ -9,8 +9,8 @@ type Element struct {
 	Props         *Props
 	Children      []*Element
 	TextContent   string
-	Styles        map[string]string
-	EventHandlers NativeEventHandlerMap
+	Styles        *Styles
+	EventHandlers *NativeEventHandlerMap
 	nativeType    NativeComponentType
 }
 
@@ -67,7 +67,7 @@ func (el *Element) Render(doc *js.Value, parent *js.Value) *js.Value {
 	native := doc.Call("createElement", elType)
 
 	if el.EventHandlers != nil {
-		for eventType, handler := range el.EventHandlers {
+		for eventType, handler := range *el.EventHandlers {
 			native.Call("addEventListener", string(eventType), js.FuncOf(*handler))
 		}
 	}
@@ -99,10 +99,38 @@ func (el *Element) Render(doc *js.Value, parent *js.Value) *js.Value {
 	if el.Styles != nil {
 		style := native.Get("style")
 
-		for rule, value := range el.Styles {
+		for rule, value := range *el.Styles {
 			style.Set(rule, value)
 		}
 	}
 
 	return &native
+}
+
+func CreateElement(c *Component, s *Styles, eh *NativeEventHandlerMap, p *Props, ch ...*Element) *Element {
+	if c == nil {
+		return nil
+	}
+
+	return &Element{
+		Component:     c,
+		Styles:        s,
+		EventHandlers: eh,
+		Props:         p,
+		Children:      ch,
+	}
+}
+
+// CreateTextElement creates a text element.
+func CreateTextElement(c *Component, s string, styles *Styles, eh *NativeEventHandlerMap) *Element {
+	if c == nil {
+		return nil
+	}
+
+	return &Element{
+		Component:     c,
+		TextContent:   s,
+		EventHandlers: eh,
+		Styles:        styles,
+	}
 }
