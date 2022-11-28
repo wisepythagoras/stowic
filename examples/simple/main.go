@@ -77,9 +77,7 @@ func main() {
 			Styles:    &dom.Styles{"padding": "10px"},
 			Props: &dom.Props{
 				"children": []*dom.Element{
-					{
-						Component: &myComponent,
-					},
+					dom.CreateElement(&myComponent, nil, nil, &dom.Props{"test": 123}),
 					dom.CreateElement(
 						&dom.Div, nil, nil, &dom.Props{},
 						dom.CreateTextElement(&dom.Div, "This is a test", nil, nil),
