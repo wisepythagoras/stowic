@@ -107,6 +107,20 @@ func (el *Element) Render(doc *js.Value, parent *js.Value) *js.Value {
 	return &native
 }
 
+func CreateBareElement(c *Component, s *Styles, ch ...*Element) *Element {
+	if c == nil {
+		return nil
+	}
+
+	return &Element{
+		Component:     c,
+		Styles:        s,
+		EventHandlers: nil,
+		Props:         &Props{},
+		Children:      ch,
+	}
+}
+
 func CreateElement(c *Component, s *Styles, eh *NativeEventHandlerMap, p *Props, ch ...*Element) *Element {
 	if c == nil {
 		return nil

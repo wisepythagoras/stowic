@@ -46,16 +46,8 @@ func main() {
 		dom.CreateElement(
 			&dom.Div, &dom.Styles{"padding": "10px"}, nil, &dom.Props{},
 			dom.CreateElement(&myComponent, nil, nil, &dom.Props{"test": 123}),
-			dom.CreateElement(
-				&dom.Div, nil, nil, &dom.Props{},
-				dom.CreateTextElement(&dom.Div, "This is a test", nil, nil),
-			),
-			dom.CreateElement(
-				&dom.Div, nil, nil, &dom.Props{},
-				dom.CreateTextElement(
-					&dom.Div, "Nesting test", nil, nil,
-				),
-			),
+			dom.CreateBareElement(&dom.Div, nil, dom.CreateTextElement(&dom.Div, "This is a test", nil, nil)),
+			dom.CreateBareElement(&dom.Div, nil, dom.CreateTextElement(&dom.Div, "Nesting test", nil, nil)),
 		),
 	}
 
