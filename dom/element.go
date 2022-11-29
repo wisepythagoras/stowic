@@ -121,31 +121,38 @@ func CreateBareElement(c *Component, s *Styles, ch ...*Element) *Element {
 	}
 }
 
-func CreateElement(c *Component, s *Styles, eh *NativeEventHandlerMap, p *Props, ch ...*Element) *Element {
-	if c == nil {
-		return nil
-	}
-
-	return &Element{
-		Component:     c,
-		Styles:        s,
-		EventHandlers: eh,
-		Props:         p,
-		Children:      ch,
+func attachToElement(e *Element, item interface{}) {
+	if styles, isStyles := item.(*Styles); isStyles {
+		e.Styles = styles
+	} else if children, isChildren := item.([]*Element); isChildren {
+		e.Children = children
+	} else if props, isProps := item.(*Props); isProps {
+		e.Props = props
+	} else if eventHandlers, isEH := item.(*NativeEventHandlerMap); isEH {
+		e.EventHandlers = eventHandlers
+	} else if child, isChild := item.(*Element); isChild {
+		e.Children = append(e.Children, child)
+	} else if str, isStr := item.(string); isStr {
+		e.TextContent = str
 	}
 }
 
-// CreateTextElement creates a text element.
-func CreateTextElement(c *Component, s string, styles *Styles, eh *NativeEventHandlerMap) *Element {
+// CreateElement will compose the element object and return it so that the calling code
+// remains neat and standardized.
+func CreateElement(c *Component, items ...interface{}) *Element {
 	if c == nil {
 		return nil
 	}
 
-	return &Element{
-		Component:     c,
-		TextContent:   s,
-		EventHandlers: eh,
-		Props:         &Props{},
-		Styles:        styles,
+	element := &Element{
+		Component: c,
+		Props:     &Props{},
+		Children:  []*Element{},
 	}
+
+	for _, item := range items {
+		attachToElement(element, item)
+	}
+
+	return element
 }
