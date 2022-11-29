@@ -12,6 +12,7 @@ type Element struct {
 	Styles        *Styles
 	EventHandlers *NativeEventHandlerMap
 	nativeType    NativeComponentType
+	stateHandlers map[any]any
 }
 
 // handleChildren will loop through the children and append them to the native element
@@ -24,6 +25,20 @@ func (el *Element) handleChildren(doc *js.Value, native *js.Value) {
 			native.Call("appendChild", *res)
 		}
 	}
+}
+
+func (el *Element) getSetStateHandler(valueAddr any, state any) any {
+	if el.stateHandlers == nil {
+		el.stateHandlers = make(map[any]any)
+	}
+
+	if existingState, hasState := el.stateHandlers[valueAddr]; hasState {
+		return existingState
+	}
+
+	el.stateHandlers[valueAddr] = state
+
+	return state
 }
 
 func (el *Element) setNativeType(nativeType NativeComponentType) {

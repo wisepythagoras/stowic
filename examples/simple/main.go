@@ -6,13 +6,14 @@ import (
 	"github.com/wisepythagoras/stowic/dom"
 )
 
-var count = 1
-
 // myComponent Shows how to create and manage a custom component.
 var myComponent dom.Component = func(p dom.Props, e *dom.Element) (*dom.Element, any) {
+	var initialCount = 1
+	count, setCount := dom.UseState(&initialCount, e)
+
 	var onButtonClick dom.NativeEventHandler = func(this js.Value, args []js.Value) any {
-		println("Button clicked", count) // time.Now().GoString()
-		count++
+		println("Button clicked", *count) // time.Now().GoString()
+		setCount((*count) + 1)
 		return nil
 	}
 
